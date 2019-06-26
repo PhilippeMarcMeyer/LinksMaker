@@ -3,6 +3,7 @@
  Distributed under the MIT License
  LinksMaker v 0.5
 */
+let LM_Factory_Lists = null;
 
 (function ( $ ) {
 	const errMsg  = "LinksMaker error : "
@@ -46,6 +47,10 @@
 	var canvasTopOffset = 0;
 	var isDisabled = false;
 	var globalAlpha = 1;
+	
+	
+
+
 		
 	var draw = function () {
 		
@@ -111,8 +116,9 @@
 			return x.tables == tablesAB && x.to == infos.nameB && x.from == infos.nameA; 
 		});
 		
-		if(test.length > 0) return;
+		if(test.length > 0) already = true;
 		
+		if(!already){
 		if(oneToMany=="off"){
 			for(var i = linksByName.length-1; i >=0 ;i--){
 				if(linksByName[i].tables == tablesAB && linksByName[i].to == infos.nameB){
@@ -126,15 +132,16 @@
 			}
 		}
 		
-
-
 		linksByName.push({"tables":tablesAB,"from":infos.nameA,"to":infos.nameB});
-		draw();
-
+		
 		$("body").trigger({
 		    type: "fieldLinkerUpdate",
 		    what: "addLink"
 		});
+		}
+		draw();
+
+
 	}
 
 	var eraseLinkA = function (nameA) {
@@ -274,7 +281,7 @@
 				.attr("id","select2")
 				.val(chosenListB)
 				.on("change",function(){
-					chosenListb = $(this).val();
+					chosenListB = $(this).val();
 					fillChosenLists();
 				});
 			
@@ -309,6 +316,11 @@ var drawColumnsContentA = function(){
 				.appendTo($ulA)
 				.attr("data-offset",i)
 				.attr("data-name",x)
+				.attr("ondrop","LM_drop(event)")
+				.attr("ondragover","LM_allowDrop(event)")
+				.attr("ondragstart","LM_drag(event)")
+				.attr("data-col",chosenListA)
+				.attr("draggable","true")
 				.css({"width":"100%","position": "relative"})
 				.text(x);
 			
@@ -320,11 +332,10 @@ var drawColumnsContentA = function(){
 			var $pullIcon = $("<i></i>");
 			$pullIcon 
 				.appendTo($li)
-				.addClass("fa fa-arrows-alt link")
+				.addClass("fa fa-pen link")
 				.css({"right":"8px","color":"#aaa","position": "absolute","top":"50%","transform": "translateY(-50%)"});
 		});
 		
-
 	// Computing the vertical offset of the middle of each cell.
 	$(factory).find(".FL-main .FL-left li").each(function(i){
 		
@@ -388,6 +399,11 @@ var drawColumnsContentA = function(){
 				.appendTo($ulB)
 				.attr("data-offset",i)
 				.attr("data-name",x)
+				.attr("data-col",chosenListB)
+				.attr("draggable","true")
+				.attr("ondrop","LM_drop(event)")
+				.attr("ondragover","LM_allowDrop(event)")
+				.attr("ondragstart","LM_drag(event)")
 				.text(x);
 		});
 		
@@ -405,19 +421,22 @@ var drawColumnsContentA = function(){
 	// Mouse up on the right side 
 	$(factory).find(".FL-main .FL-right li").off("mouseup").on("mouseup", function (e) {
 		if (isDisabled) return;
-		if(move == null){ // no drag 
-			eraseLinkB($(this).data("name")); // we erase an existing link if any
-			draw();
-		}else{ // we finish a drag then get the infos an create a link
-		if(oneToMany=="off"){
-			eraseLinkB($(this).data("name")); // we erase an existing link if any
-		}
+		if(move != null){ // no drag 
+			if(oneToMany=="off"){
+				eraseLinkB($(this).data("name")); // we erase an existing link if any
+			}
 			move.offsetB = $(this).data("offset");
 			move.nameB = $(this).data("name");
 			var infos =  JSON.parse(JSON.stringify(move));
 			move = null;
 			makeLink(infos);
-		}
+			}
+	});
+	
+		$(factory).find(".FL-main .FL-right li").off("dblclick").on("dblclick", function (e) {
+		if (isDisabled) return;
+			eraseLinkB($(this).data("name")); // we erase an existing link if any
+			draw();
 	});
 	
 	// mousemove over a right cell
@@ -551,7 +570,13 @@ var setListeners = function(){
 
 	$.fn.linksMaker = function(action,input) {
 		factory = this;
+		
 	    if (action == "init") {
+			
+			$("body").on("LM_Message_Redraw",function(){
+				draw();
+			});
+			
 
 	        if(!input){
 	            onError = true;
@@ -560,6 +585,8 @@ var setListeners = function(){
 	        }
 	        
 	        data = JSON.parse(JSON.stringify(input));
+			
+			LM_Factory_Lists = data;
 			
 			if(!data.Lists || data.Lists.length < 2){
 				onError = true;
@@ -675,3 +702,51 @@ var setListeners = function(){
 }( jQuery ));
 
 
+function LM_allowDrop (ev) {
+  ev.preventDefault();
+}
+
+function LM_drag(ev) {
+
+	let $target = $(ev.target);
+	let data = {};
+	data.name = $target.attr("data-name");
+	data.col = $target.attr("data-col");
+	data.offset = $target.attr("data-offset");
+
+	ev.dataTransfer.setData("text/plain", JSON.stringify({data}));
+}
+
+function LM_drop (ev) {
+  ev.preventDefault();
+  let src = JSON.parse(ev.dataTransfer.getData("text"));
+  if(src){
+	  src = src.data;
+  }
+  let $target = $(ev.target);
+  	let dest = {};
+	dest.name = $target.attr("data-name");
+	dest.col = $target.attr("data-col");
+	dest.offset = $target.attr("data-offset");
+
+  
+
+if(src.col == dest.col && src.offset != dest.offset && src.name != dest.name){
+	  
+		LM_Factory_Lists.Lists.forEach(function(x){
+			if(x.name == src.col){
+				let indexA = x.list.indexOf(src.name);
+				let indexB = x.list.indexOf(dest.name);
+				if(indexA != -1 && indexB != -1){
+					let temp =  x.list[indexA];
+					x.list[indexA] = x.list[indexB];
+					x.list[indexB] = temp;
+				}
+			}
+		});
+		
+		$("body").trigger("LM_Message_Redraw")
+
+		
+    }
+}
