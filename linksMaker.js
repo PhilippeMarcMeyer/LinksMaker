@@ -743,7 +743,7 @@ function LM_drag(ev) {
 	data.col = $target.parent().parent().attr("data-col");
 	data.offset = $target.parent().attr("data-offset");
 
-	ev.dataTransfer.setData("text/plain", JSON.stringify(data));
+	ev.dataTransfer.setData("text/plain", JSON.stringify({data}));
 }
 
 function LM_drop (ev) {
