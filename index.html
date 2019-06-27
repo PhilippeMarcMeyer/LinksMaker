@@ -24,19 +24,23 @@
 	 body{
 		font-family: "Roboto,Helvetica Neue",Helvetica,Arial,sans-serif; 
 	 }
+	 
 	 #container{
-		 padding-top: 30px;
+		 padding-top: 20px;
 		 padding-left:50px;
 		 width:90%;
 	 }
 
+	#menu{
+		 padding-top: 20px;
+		 padding-left:20px;
+	 }
 	 
 	h5 {
 		color: #2e44b9;
 		font-weight: bold;
 		font-size: 24px;;
 	}
-	
 	
 	/* ---------- */
 	
@@ -53,40 +57,46 @@
 		min-width:300px;
 	 }
 	 
+a.btn-back:hover {
+	background-image: linear-gradient(to bottom,#ccc 0,#ddd 100%);
+}
+
+a.btn-back {
+	font-family: Tahoma, Calibri, Arial, sans-serif;
+	color : grey;
+	border-radius: 4px;
+	text-decoration: none;
+	border: 1px solid #ddd;
+	padding: 4px 8px 4px 8px;
+	margin:4px;
+	background-image: linear-gradient(to bottom,#fff 0,#eee 100%);
+}
+
 	</style>
   </head>
   <body>
-
+    <div id="menu">
+ 		<a class="btn-back" href="https://philippemarcmeyer.github.io/#jquery">Blog</a>
+		<a class="btn-back" href="https://github.com/PhilippeMarcMeyer/LinksMaker">Repo</a>
+	</div>	
   <div id="container">
-  
- <div id="linksMakerZone" style="max-width:800px;width:800px;" >
-	  <h5 style="display:inline-block">Links Maker</h5>&nbsp;v0.60
-	  <p>Allows to link elements between several columns shown 2 by 2 </p>
-	  <p>New in v0.60 : reorder elements by drag and drop <i>Not (yet) compatible with IE if ever</i></p></br>
-	  
-	    <hr/>	
-	  </div>
-
-	  <div id="bonds">
-	
-	  </div>
+	 <div id="linksMakerZone" style="max-width:800px;width:800px;" >
+		  <h5 style="display:inline-block">Links Maker</h5>&nbsp;v0.60
+		  <p>Allows to link elements between several columns shown 2 by 2 </p>
+		  <p>New in v0.60 : reorder elements by drag and drop <i>Not (yet) compatible with IE if ever</i></p></br>
+	 </div>
+	  <div id="bonds"></div>
 	 <hr/>
 		<button type="button" class="btn fieldLinkerSave btn-sm btn-primary">Save links</button>
-		<br />
-		
-		<div id="input">
-		
-		</div>
-		<div id="output">
-		
-		</div>
+		<div id="input"></div>
+		<div id="output"></div>
   </div>
   
   
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
-      <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 
-	  <script src="./linksMaker.js"></script>
+  <script src="./linksMaker.js"></script>
 	  
 	<script>  
 	var fieldLinks;
