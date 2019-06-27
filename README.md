@@ -5,3 +5,4 @@ Work in progress : you can load, draw and save the links between several links
 
 v 0.6 : Reorder elements by drag and drop
 
+Demo : https://philippemarcmeyer.github.io/LinksMaker/index.html
