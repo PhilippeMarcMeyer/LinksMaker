@@ -304,10 +304,12 @@ var drawColumnsContentA = function(){
 		if($ulA.length == 1){
 			$ulA.empty();
 		}else{
+
 			$ulA =  $("<ul></ul>");
 		}
 		$ulA 
 			.appendTo($leftDiv)
+			.attr("data-col",chosenListA)
 			.css({"text-align":"left","list-style":"none"});
 			
 		listA.forEach(function(x,i){
@@ -316,23 +318,30 @@ var drawColumnsContentA = function(){
 				.appendTo($ulA)
 				.attr("data-offset",i)
 				.attr("data-name",x)
+				.css({"width":"100%","position": "relative"});
+				
+			var $div =$("<div></div>");	
+			$div
+				.appendTo($li)
 				.attr("ondrop","LM_drop(event)")
 				.attr("ondragover","LM_allowDrop(event)")
 				.attr("ondragstart","LM_drag(event)")
-				.attr("data-col",chosenListA)
 				.attr("draggable","true")
-				.css({"width":"100%","position": "relative"})
+				.css({"width":"80%"})
 				.text(x);
+				
 			
 			var $eraseIcon = $("<i></i>");
 			$eraseIcon 
 				.appendTo($li)
 				.addClass("fa fa-undo unlink")
+				.attr("draggable","false")
 				.css({"right":"28px","color":"#aaa","position": "absolute","top":"50%","transform": "translateY(-50%)"});
 			var $pullIcon = $("<i></i>");
 			$pullIcon 
 				.appendTo($li)
-				.addClass("fa fa-pen link")
+				.addClass("fa fa-arrows-alt link")
+				.attr("draggable","false")
 				.css({"right":"8px","color":"#aaa","position": "absolute","top":"50%","transform": "translateY(-50%)"});
 		});
 		
@@ -390,6 +399,7 @@ var drawColumnsContentA = function(){
 		
 		$ulB
 			.appendTo($rightDiv)
+			.attr("data-col",chosenListB)
 			.css({"text-align":"left","list-style":"none"})
 			
 
@@ -399,12 +409,18 @@ var drawColumnsContentA = function(){
 				.appendTo($ulB)
 				.attr("data-offset",i)
 				.attr("data-name",x)
-				.attr("data-col",chosenListB)
-				.attr("draggable","true")
+				.attr("draggable","true");
+				
+			var $div =$("<div></div>");	
+			$div
+				.appendTo($li)
 				.attr("ondrop","LM_drop(event)")
 				.attr("ondragover","LM_allowDrop(event)")
 				.attr("ondragstart","LM_drag(event)")
+				.attr("draggable","true")
+				.css({"width":"80%"})
 				.text(x);
+				
 		});
 		
 		// Computing the vertical offset of the middle of each cell.
@@ -574,6 +590,19 @@ var setListeners = function(){
 	    if (action == "init") {
 			
 			$("body").on("LM_Message_Redraw",function(){
+				move=null;
+				listA = [];
+				listB = [];
+				LM_Factory_Lists.Lists.forEach(function(x){
+					if(x.name == chosenListA){
+						listA = x.list;
+					}
+					if(x.name == chosenListB){
+						listB = x.list;
+					}
+				});
+				drawColumnsContentA();
+				drawColumnsContentB();
 				draw();
 			});
 			
@@ -710,9 +739,9 @@ function LM_drag(ev) {
 
 	let $target = $(ev.target);
 	let data = {};
-	data.name = $target.attr("data-name");
-	data.col = $target.attr("data-col");
-	data.offset = $target.attr("data-offset");
+	data.name = $target.parent().attr("data-name");
+	data.col = $target.parent().parent().attr("data-col");
+	data.offset = $target.parent().attr("data-offset");
 
 	ev.dataTransfer.setData("text/plain", JSON.stringify({data}));
 }
@@ -725,9 +754,9 @@ function LM_drop (ev) {
   }
   let $target = $(ev.target);
   	let dest = {};
-	dest.name = $target.attr("data-name");
-	dest.col = $target.attr("data-col");
-	dest.offset = $target.attr("data-offset");
+	dest.name = $target.parent().attr("data-name");
+	dest.col = $target.parent().parent().attr("data-col");
+	dest.offset = $target.parent().attr("data-offset");
 
   
 

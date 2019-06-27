@@ -31,6 +31,11 @@
 	border-radius : 0px;
 }
 
+.linksMaker li div{
+	font-weight:normal;
+	cursor:grab;
+}
+
 .linksMaker li[data-mandatory='true']{
 	background-color:#D7504C;
 	background: linear-gradient(#D7504C, #C12F2B);
