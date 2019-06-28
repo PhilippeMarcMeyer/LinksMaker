@@ -1,7 +1,7 @@
 /* 
  Copyright (C) Philippe Meyer 2019
  Distributed under the MIT License
- LinksMaker v 0.5
+ LinksMaker v 0.61
 */
 let LM_Factory_Lists = null;
 
@@ -346,8 +346,8 @@ var drawColumnsContentA = function(){
 		});
 		
 	// Computing the vertical offset of the middle of each cell.
+	ListHeights1 = [];
 	$(factory).find(".FL-main .FL-left li").each(function(i){
-		
 		var position = $(this).position();
 		var hInner = $(this).height();
 		var hOuter = $(this).outerHeight();
@@ -424,6 +424,7 @@ var drawColumnsContentA = function(){
 		});
 		
 		// Computing the vertical offset of the middle of each cell.
+		ListHeights2 = [];
 	$(factory).find(".FL-main .FL-right li").each(function(i){
 		var position = $(this).position();
 		var hInner = $(this).height();
