@@ -43,14 +43,10 @@ let LM_Factory_Lists = null;
 	var handleColor = "#CF0000,#00AD00,#0000AD,#FF4500,#00ADAD,#AD00AD,#582900,#FFCC00,#000000,#33FFCC".split(",");
 	var lineColor = "black";
 	var autoDetect = "off";
-	var oneToMany = "off";
+	var associationMode = "oneToOne";
 	var canvasTopOffset = 0;
 	var isDisabled = false;
 	var globalAlpha = 1;
-	
-	
-
-
 		
 	var draw = function () {
 		
@@ -119,7 +115,7 @@ let LM_Factory_Lists = null;
 		if(test.length > 0) already = true;
 		
 		if(!already){
-		if(oneToMany=="off"){
+		if(associationMode=="oneToOne"){
 			for(var i = linksByName.length-1; i >=0 ;i--){
 				if(linksByName[i].tables == tablesAB && linksByName[i].to == infos.nameB){
 					linksByName.splice(i,1);
@@ -192,8 +188,8 @@ let LM_Factory_Lists = null;
 			handleColor = data.options.handleColor.split(",");
 		}
 		
-		if(data.options.oneToMany){
-			oneToMany = data.options.oneToMany;
+		if(data.options.associationMode){
+			associationMode = data.options.associationMode;
 		}
 
 		if (data.options.canvasTopOffset) {
@@ -439,7 +435,7 @@ var drawColumnsContentA = function(){
 	$(factory).find(".FL-main .FL-right li").off("mouseup").on("mouseup", function (e) {
 		if (isDisabled) return;
 		if(move != null){ // no drag 
-			if(oneToMany=="off"){
+			if(associationMode=="oneToOne"){
 				eraseLinkB($(this).data("name")); // we erase an existing link if any
 			}
 			move.offsetB = $(this).data("offset");
@@ -688,7 +684,33 @@ var setListeners = function(){
 					if(options.handleColor){
 						handleColor = options.handleColor;
 					}
-
+					if(options.associationMode){
+						let unicityTokenA = "";
+						let unicityTokenB = "";
+						let formerAssociation = associationMode;
+						associationMode = options.associationMode;
+						if(associationMode == "oneToOne" && formerAssociation == "manyToMany"){
+							let unicityDict= {};
+							for(var i = linksByName.length-1; i >=0 ;i--){
+								unicityTokenA = linksByName[i].tables + "_A_" + linksByName[i]["from"];
+								unicityTokenB = linksByName[i].tables + "_B_" + linksByName[i]["to"];
+								let doDelete = false;
+								if(!unicityDict[unicityTokenA]){
+									unicityDict[unicityTokenA] = true;
+								}else{
+									doDelete = true;
+								}
+								if(!unicityDict[unicityTokenB]){
+									unicityDict[unicityTokenB] = true;
+								}else{
+									doDelete = true;
+								}
+								if(doDelete){
+									linksByName.splice(i,1);
+								}
+							}
+						}
+					}
 				}
 			draw();
 			}
@@ -702,6 +724,10 @@ var setListeners = function(){
                 .find("li")
                 .addClass("inactive");
 
+		    $(factory)
+                .find("select")
+                .prop("disabled", isDisabled);
+				
 		    globalAlpha = 0.5;
 
 		    draw();
@@ -719,6 +745,10 @@ var setListeners = function(){
                 .find("li")
                 .removeClass("inactive");
 
+		    $(factory)
+                .find("select")
+                .prop("disabled", isDisabled);
+				
 		    globalAlpha = 1;
 
 		    draw();

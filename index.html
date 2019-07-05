@@ -72,6 +72,57 @@ a.btn-back {
 	background-image: linear-gradient(to bottom,#fff 0,#eee 100%);
 }
 
+input[type=radio] {
+	font-size: 11px;
+	cursor: pointer;
+}
+
+	input[type=radio]:before {
+		background: white;
+		border: 2px solid #337ab7;
+		border-radius: 50%;
+		margin-top: -2px;
+		margin-right: 6px;
+		display: inline-block;
+		vertical-align: middle;
+		content: '';
+		width: 14px;
+		height: 14px;
+	}
+
+	input[type=radio]:checked:before {
+		background: #337ab7;
+		border-color: #337ab7;
+		box-shadow: inset 0px 0px 0px 2px #fff;
+	}
+	.choices{
+		display:inline-block;
+		margin-right:40px;
+	}
+	
+	.choices label{
+		font-weight:normal;
+		margin-left:4px;
+		margin-right:4px;
+		vertical-align:8%;
+	}
+	
+	.nice-group{
+		width:680px;
+		line-height: 16px;
+		padding:10px;
+		border:1px solid #ccc;
+		background-color:#fff
+		border-radius:5px;
+	}
+	.nice-group legend {
+		color: #337ab7;
+		width:120px;
+		font-size:14px !important;
+		border-bottom:none;
+		
+	}
+
 	</style>
   </head>
   <body>
@@ -81,10 +132,26 @@ a.btn-back {
 	</div>	
   <div id="container">
 	 <div id="linksMakerZone" style="max-width:800px;width:800px;" >
-		  <h5 style="display:inline-block">Links Maker</h5>&nbsp;v0.61
-		  <p>Allows to link elements between several columns shown 2 by 2 </p>
-		  <p>New in v0.60 : reorder elements by drag and drop <i>Not (yet) compatible with IE if ever</i></p>
-	 </div>
+ 		  <p>Allows to link elements between several columns shown 2 by 2 </p>
+		  <p>New in v0.62 : option "oneToMany":"off|on" becomes "associationMode":"oneToOne|manyToMany" and can now be changed after loading </p>
+		   <fieldset class="nice-group">
+		   <legend>Change options :</legend>
+
+		  <div class="choices">
+		      <input name="associationMode" type="radio" value="oneToOne" /><label>oneToOne</label>
+              <input name="associationMode" type="radio" value="manyToMany" checked="checked" /><label>manyToMany</label>
+		 </div>
+		
+		 <div class="choices">
+		      <input name="enable" type="radio" value="enable" checked="checked"  /><label>Enable</label>
+              <input name="enable" type="radio" value="disable" /><label>Disable</label>
+		 </div>
+		 <div class="choices">
+		      <input name="lineStyle" type="radio" value="straight"  /><label>straight</label>
+              <input name="lineStyle" type="radio" value="square-ends" checked="checked" /><label>square-ends</label>
+		 </div>
+		   </fieldset>
+		 <br/> <br/>	 </div>
 	  <div id="bonds"></div>
 	 <hr/>
 		<button type="button" class="btn fieldLinkerSave btn-sm btn-primary">Save links</button>
@@ -105,11 +172,11 @@ a.btn-back {
 		$( document ).ready(function() {
 
 			var input = {
-			"existingLinks": {"links":[{"tables":"Fruits|Colors","from":"Lemon","to":"yellow"},{"tables":"Fruits|Colors","from":"Orange","to":"orange"},{"tables":"Fruits|Colors","from":"Kiwifruit","to":"green"},{"tables":"Vegetables|Colors","from":"carrot","to":"orange"}]},
+			"existingLinks":  {"links":[{"tables":"Fruits|Colors","from":"Lemon","to":"yellow"},{"tables":"Fruits|Colors","from":"Orange","to":"orange"},{"tables":"Fruits|Colors","from":"Kiwifruit","to":"green"},{"tables":"Vegetables|Colors","from":"carrot","to":"orange"},{"tables":"Fruits|Colors","from":"Kiwifruit","to":"beige"},{"tables":"Fruits|Colors","from":"Banana","to":"yellow"}]},
 			    "options":{
 					"lineStyle":"square-ends",
 					"buttonErase":"Erase Links",
-					"oneToMany":"on"
+					"associationMode":"manyToMany" // oneToOne,manyToMany
 				},
 				"Lists":[
 						{
@@ -168,6 +235,20 @@ a.btn-back {
 			
 		});
  
+		 $("input[name='associationMode']").on("click", function () {
+		 let choice = $(this).val();
+			fieldLinks.linksMaker("changeParameters",{"associationMode":choice});
+		});
 		
+		$("input[name='enable']").on("click", function () {
+		 let choice = $(this).val();
+		 
+			fieldLinks.linksMaker(choice);
+		});		
+		
+		$("input[name='lineStyle']").on("click", function () {
+		 let choice = $(this).val();
+			fieldLinks.linksMaker("changeParameters",{"lineStyle":choice});
+		});
 	 </script>  
 </html>
