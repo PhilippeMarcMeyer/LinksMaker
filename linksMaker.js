@@ -1,7 +1,7 @@
 /* 
  Copyright (C) Philippe Meyer 2019
  Distributed under the MIT License
- LinksMaker v 0.61
+ LinksMaker v 0.62 : mobile friendly idea by Norman Tomlins => make links more easily on touch devices just by clicking 
 */
 let LM_Factory_Lists = null;
 
@@ -26,15 +26,9 @@ let LM_Factory_Lists = null;
 	var canvasWidth = 0;
 	var canvasHeight = 0;
 	var canvasTopMargin;
-	
-	
-	
 	var onError = false;
 	var className = "linksMaker";
-	
-	var linksByName=[];
-
-	
+	var linksByName=[];	
 	var ListHeights1 = [];
 	var ListHeights2 = [];	
 	var move = null;
@@ -47,7 +41,9 @@ let LM_Factory_Lists = null;
 	var canvasTopOffset = 0;
 	var isDisabled = false;
 	var globalAlpha = 1;
-		
+	var isTouchScreen = is_touch_device();
+	let mobileClickIt = isTouchScreen;
+	
 	var draw = function () {
 		
 		var tablesAB = chosenListA+"|"+chosenListB;
@@ -295,7 +291,7 @@ let LM_Factory_Lists = null;
 				.html(data.options.buttonErase);
 		}
 	}
-var drawColumnsContentA = function(){
+	var drawColumnsContentA = function(){
 		var $ulA =	$(".FL-left ul");
 		if($ulA.length == 1){
 			$ulA.empty();
@@ -357,32 +353,46 @@ var drawColumnsContentA = function(){
 	});
 	
 
-		
+	if(!mobileClickIt){	
 			// On mousedown in left List : 
-	$(factory).find(".FL-main .FL-left li").off("mousedown").on("mousedown",function(e){
-		// we make a move object to keep track of the origine and also remember that we are starting a mouse drag (mouse is down)
-		if (isDisabled) return;
-		move = {};
-		move.offsetA = $(this).data("offset");
-		move.nameA = $(this).data("name");
-		move.offsetB = -1;
-		move.nameB = -1;
-	});
+		$(factory).find(".FL-main .FL-left li").off("mousedown").on("mousedown",function(e){
+			// we make a move object to keep track of the origine and also remember that we are starting a mouse drag (mouse is down)
+			if (isDisabled) return;
+			move = {};
+			move.offsetA = $(this).data("offset");
+			move.nameA = $(this).data("name");
+			move.offsetB = -1;
+			move.nameB = -1;
+		});
+		
+		$(factory).find(".FL-main .FL-left li").off("mouseup").on("mouseup", function (e) {
+			if (isDisabled) return;
+			// We do a mouse up on le teft side : the drag is canceled
+			move=null;
+		});
+		
+		$(factory).find(".FL-main .FL-left li").off("click").on("click", function (e) {
+			if (isDisabled) return;
+			eraseLinkA($(this).parent().data("name"));
+			draw();
+		});
+	}else{
+		$(factory).find(".link").off("click").on("click",function(e){
+			if (isDisabled) return;
+			move = {};
+			move.offsetA = $(this).parent().data("offset");
+			move.nameA = $(this).parent().data("name");
+			move.offsetB = -1;
+			move.nameB = -1;
+		});
+	}
 	
-	$(factory).find(".FL-main .FL-left li .unlink").off("click").on("click", function (e) {
+	$(factory).find(".unlink").off("click").on("click", function (e) {
 		if (isDisabled) return;
 		eraseLinkA($(this).parent().data("name"));	
 		draw();
 	});
-	
-	$(factory).find(".FL-main .FL-left li").off("mouseup").on("mouseup", function (e) {
-		if (isDisabled) return;
-		// We do a mouse up on le teft side : the drag is canceled
-		move=null;
-	});
-
-
-	}
+}
 
 	var drawColumnsContentB = function(){
 		var $ulB =	$(".FL-right ul");
@@ -421,36 +431,49 @@ var drawColumnsContentA = function(){
 		
 		// Computing the vertical offset of the middle of each cell.
 		ListHeights2 = [];
-	$(factory).find(".FL-main .FL-right li").each(function(i){
-		var position = $(this).position();
-		var hInner = $(this).height();
-		var hOuter = $(this).outerHeight();
-		var delta = Math.floor(0.5 + (hOuter - hInner)/2);
-		var midInner = Math.floor(0.5 + hInner/2);
-		var midHeight = position.top + midInner - delta;
-		ListHeights2.push(midHeight);
-	});
+		$(factory).find(".FL-main .FL-right li").each(function(i){
+			var position = $(this).position();
+			var hInner = $(this).height();
+			var hOuter = $(this).outerHeight();
+			var delta = Math.floor(0.5 + (hOuter - hInner)/2);
+			var midInner = Math.floor(0.5 + hInner/2);
+			var midHeight = position.top + midInner - delta;
+			ListHeights2.push(midHeight);
+		});
 		
-	// Mouse up on the right side 
-	$(factory).find(".FL-main .FL-right li").off("mouseup").on("mouseup", function (e) {
-		if (isDisabled) return;
-		if(move != null){ // no drag 
-			if(associationMode=="oneToOne"){
-				eraseLinkB($(this).data("name")); // we erase an existing link if any
+		// Mouse up on the right side 
+		$(factory).find(".FL-main .FL-right li").off("mouseup").on("mouseup", function (e) {
+			if (isDisabled) return;
+			if(move != null){ // no drag 
+				if(associationMode=="oneToOne"){
+					eraseLinkB($(this).data("name")); // we erase an existing link if any
+				}
+				move.offsetB = $(this).data("offset");
+				move.nameB = $(this).data("name");
+				var infos =  JSON.parse(JSON.stringify(move));
+				move = null;
+				makeLink(infos);
 			}
-			move.offsetB = $(this).data("offset");
-			move.nameB = $(this).data("name");
-			var infos =  JSON.parse(JSON.stringify(move));
-			move = null;
-			makeLink(infos);
-			}
-	});
+		});
 	
 		$(factory).find(".FL-main .FL-right li").off("dblclick").on("dblclick", function (e) {
 		if (isDisabled) return;
 			eraseLinkB($(this).data("name")); // we erase an existing link if any
 			draw();
-	});
+		});
+		
+	if(mobileClickIt){
+		$(factory).find(".FL-right li").off("click").on("click", function (e) {
+			if (isDisabled) return;
+			if(move != null){ 
+				move.offsetB = $(this).data("offset");
+				move.nameB = $(this).data("name");
+				var infos =  JSON.parse(JSON.stringify(move));
+				move = null;
+				makeLink(infos);
+			}
+		});
+	}
 	
 	// mousemove over a right cell
 	$(factory).find(".FL-main .FL-right li").off("mousemove").on("mousemove",function(e){
@@ -809,4 +832,20 @@ if(src.col == dest.col && src.offset != dest.offset && src.name != dest.name){
 
 		
     }
+}
+
+function is_touch_device() { // from bolmaster2 - stackoverflow
+  var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
+  var mq = function(query) {
+    return window.matchMedia(query).matches;
+  }
+
+  if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
+    return true;
+  }
+
+  // include the 'heartz' as a way to have a non matching MQ to help terminate the join
+  // https://git.io/vznFH
+  var query = ['(', prefixes.join('touch-enabled),('), 'heartz', ')'].join('');
+  return mq(query);
 }
