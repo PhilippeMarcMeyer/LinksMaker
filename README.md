@@ -4,12 +4,19 @@ jQuery plugin to draw and save links between several lists of words compared 2 b
 Work in progress : you can load, draw and save the links between several links
 
 v 0.6 : Reorder elements by drag and drop
-v 0.61 : correcting a bug preventing linking after exchanging columns
-		  when column A length > column B length
+
+
+v 0.61 : correcting a bug preventing linking after exchanging columns when column A length > column B length
+	
+	
 v 0.62 : mobile friendly idea by **Norman Tomlins** => make links more easily on touch devices just by clicking 
+
 *Norman also provided the real life example of the demo page : colors for fiber cables to pair*
+
 Tribute to **bolmaster2** on stackoverflow who wrote to is_touch_device() function 
+
 This mobile behavious does not require any new option.
+
 
 Demo : https://philippemarcmeyer.github.io/LinksMaker/index.html?v=0.62
 
